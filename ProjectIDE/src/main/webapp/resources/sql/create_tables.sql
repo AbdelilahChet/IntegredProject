@@ -3,7 +3,7 @@
   EXECUTE WITH THE COMMAND:
     mysql -u root -p idevry < src/main/webapp/resources/sql/create_tables.sql
   password:
-    multimif
+    
 */
 DROP DATABASE idevry;
 CREATE DATABASE idevry;
