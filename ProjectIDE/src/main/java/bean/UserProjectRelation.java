@@ -3,39 +3,29 @@ package bean;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "USER_PROJECT_RELATION")
+@Table(name="USER_PROJECT_RELATION")
 @IdClass(UserProjectRelationId.class)
 public class UserProjectRelation {
-    @Id
-    @Column(name = "ID_USER")
+    @Id @Column(name="ID_USER")
     private long userId;
-    @Id
-    @Column(name = "ID_PROJECT")
+    @Id @Column(name="ID_PROJECT")
     private long projectId;
-    @Column(name = "MANAGER")
+    @Column(name="MANAGER")
     private boolean isManager;
-    private
-    @Column(name = "READ_RIGHT")
-    Boolean read;
-    private
-    @Column(name = "WRITE_RIGHT")
-    Boolean write;
-    private
-    @Column(name = "ADD_USER_RIGHT")
-    Boolean addUser;
-    private
-    @Column(name = "CHANGE_RIGHTS_RIGHT")
-    Boolean changeRights;
+    private @Column(name="READ_RIGHT")          Boolean read;
+    private @Column(name="WRITE_RIGHT")         Boolean write;
+    private @Column(name="ADD_USER_RIGHT")      Boolean addUser;
+    private @Column(name="CHANGE_RIGHTS_RIGHT") Boolean changeRights;
     @ManyToOne
-    @PrimaryKeyJoinColumn(name = "ID_USER", referencedColumnName = "ID")
+    @PrimaryKeyJoinColumn(name="ID_USER", referencedColumnName="ID")
     private User user;
 
     @ManyToOne
-    @PrimaryKeyJoinColumn(name = "ID_PROJECT", referencedColumnName = "ID")
+    @PrimaryKeyJoinColumn(name="ID_PROJECT", referencedColumnName="ID")
 
     private Project project;
 
-    public UserProjectRelation() {
+    public UserProjectRelation(){
         read = true;
         write = true;
         addUser = true;
@@ -60,7 +50,7 @@ public class UserProjectRelation {
     // GETTERS AND SETTERS
 
     public boolean getRights(int i) {
-        switch (i) {
+        switch (i){
             case 0:
                 return read;
             case 1:
@@ -74,7 +64,7 @@ public class UserProjectRelation {
     }
 
     public void setRights(boolean right, int i) {
-        switch (i) {
+        switch (i){
             case 0:
                 this.read = right;
             case 1:
@@ -87,13 +77,7 @@ public class UserProjectRelation {
     }
 
 
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
+    public Project getProject(){return project; }
 
     public long getUserId() {
         return userId;
@@ -125,6 +109,10 @@ public class UserProjectRelation {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
 }

@@ -1,3 +1,4 @@
+
 package bean;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ public class IsUse {
     @PrimaryKeyJoinColumn(name = "ID_FILE", referencedColumnName = "ID")
     private FileInProject file;
 
+    public IsUse(){}
     public IsUse(User user, FileInProject file) {
         this.file = file;
         this.idFile = file.getId();
@@ -30,6 +32,12 @@ public class IsUse {
         this.lastActivity = new Date();
     }
 
+    /**
+     *
+     * @param candidate regarde si un user peut ecrire sur un fichier
+     *
+     * @return  vrai si il n'y a pas de user dessus ou si le user qui possède le locket est le meme que celui qui demande l'acces
+     */
     public boolean canAccess(User candidate) {
         return user == null || user.getId() == candidate.getId();
     }

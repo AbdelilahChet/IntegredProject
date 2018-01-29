@@ -1,0 +1,105 @@
+/*
+  SQL DATA BASE
+  EXECUTE WITH THE COMMAND:
+    mysql -u root -p idevry < src/main/webapp/resources/sql/create_tables.sql
+  password:
+    multimif
+*/
+DROP DATABASE idevry;
+CREATE DATABASE idevry;
+USE idevry;
+DROP TABLE IF EXISTS IS_USE;
+DROP TABLE IF EXISTS GROUPE;
+DROP TABLE IF EXISTS USER_PROJECT_RELATION;
+DROP TABLE IF EXISTS FILE;
+DROP TABLE IF EXISTS PROJECT;
+DROP TABLE IF EXISTS DIRECTORY;
+DROP TABLE IF EXISTS FILE_OR_CONTAINER;
+DROP TABLE IF EXISTS USER;
+
+##################################
+####### FILE OR CONTAINER? #######
+##################################
+
+CREATE TABLE FILE_OR_CONTAINER(
+    FILEORCONT VARCHAR(255),
+    NAME       VARCHAR(255),
+    ID         INTEGER NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (ID)
+);
+
+##################################
+##### CONTAINER INHERITANCE ######
+##################################
+CREATE TABLE CONTAINER(
+    CONT_TYPE VARCHAR(255),
+    ID        INTEGER,
+    FOREIGN KEY (ID) REFERENCES FILE_OR_CONTAINER(ID),
+    PRIMARY KEY (ID)
+);
+
+CREATE TABLE PROJECT (
+    ID INTEGER,
+    PATH VARCHAR(255),
+    FOREIGN KEY (ID) REFERENCES CONTAINER(ID),
+    PRIMARY KEY (ID)
+);
+
+CREATE TABLE DIRECTORY(
+    ID_FATHER INTEGER,
+    ID INTEGER,
+    FOREIGN KEY (ID) REFERENCES CONTAINER(ID),
+    FOREIGN KEY (ID_FATHER) REFERENCES CONTAINER(ID),
+    PRIMARY KEY (ID)
+);
+##################################
+##################################
+
+CREATE TABLE FILE(
+    ID INTEGER,
+    ID_FATHER INTEGER,
+    FOREIGN KEY (ID) REFERENCES FILE_OR_CONTAINER(ID),
+    FOREIGN KEY (ID_FATHER) REFERENCES CONTAINER(ID),
+    PRIMARY KEY (ID)
+);
+##################################
+##################################
+
+
+CREATE TABLE USER (
+    ID       INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email    VARCHAR(255),
+    pseudo   VARCHAR(255),
+    name     VARCHAR(255),
+    surname  VARCHAR(255),
+    password VARCHAR(255)
+);
+
+CREATE TABLE USER_PROJECT_RELATION (
+    ID_USER     INTEGER,
+    ID_PROJECT  INTEGER,
+    MANAGER     VARCHAR (10),
+    FOREIGN KEY (ID_USER) REFERENCES USER(ID),
+    FOREIGN KEY (ID_PROJECT) REFERENCES PROJECT(ID),
+    PRIMARY KEY (ID_USER, ID_PROJECT),
+    READ_RIGHT INTEGER ,
+    WRITE_RIGHT INTEGER ,
+    ADD_USER_RIGHT INTEGER ,
+    CHANGE_RIGHTS_RIGHT INTEGER
+);
+
+CREATE TABLE IS_USE(
+    ID_USER INTEGER,
+    ID_FILE INTEGER,
+    LAST_ACTIVITY DATE,
+    FOREIGN KEY (ID_USER) REFERENCES USER(ID),
+    FOREIGN KEY (ID_FILE) REFERENCES FILE(ID),
+    PRIMARY KEY (ID_FILE, ID_USER)
+);
+
+SHOW TABLES;
+--
+-- INSERT INTO USER (email, pseudo, name, surname, password) VALUES ('enzo.the@gmail.com','enzo_the_boss','lebrun','enzo','enzo');
+-- INSERT INTO USER (email, pseudo, name, surname, password) VALUES ('jacquieetmichel@jetm.tv', 'JB69', 'COLUS', 'Jean-Baptiste', 'jbb');
+-- INSERT INTO PROJECT (name, PATH) VALUES ('idevry', '~/Documents/MASTER/multimif/');
+-- INSERT INTO USER_PROJECT_RELATION (ID_USER, ID_PROJECT, READ_RIGHT, WRITE_RIGHT, ADD_USER_RIGHT, CHANGE_RIGHTS_RIGHT) VALUES (1, 1, 1, 1, 1, 1);

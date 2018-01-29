@@ -5,55 +5,100 @@ import constants.CONSTANTS;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
+@DiscriminatorValue("file")
 @Table(name = "FILE")
-public class FileInProject {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private int id;
-    @Column(name = "NAME", length = 255)
-    private String nom;
-    @Column(name = "PATH", length = 255)
-    private String path;
+public class FileInProject extends FileOrContainer{
+    @JoinColumn(name = "ID_FATHER")
+    private int idFather;
     @ManyToOne
-    @JoinColumn(name = "ID_PROJECT", referencedColumnName = "ID")
-    private Project project;
+    @JoinColumn(name = "ID_FATHER", referencedColumnName = "ID")
+    private Container father;
 
-    public FileInProject() {
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
+    private List<IsUse> isUse = new ArrayList<IsUse>();
+
+
+    public FileInProject() {}
+
+    public FileInProject(String nom, Container dir) throws IOException {
+        super(nom);
+        this.father = dir;
+        this.idFather = dir.getId();
+        CONSTANTS.getInstance().createFileOnDisk(getPath() + "/" + nom);
     }
 
-    public FileInProject(String nom, String path, Project project) throws IOException {
-        CONSTANTS.getInstance().createFileOnDisk(project.getPath() + "/" + path + "/" + nom);
-        this.nom = nom;
-        this.path = path;
-        this.project = project;
+    @Override
+    public String getPath(){
+        return father.getPath() + "/" + name;
     }
 
-    public String toString() {
-        return path + nom;
+    /**
+     * Gestion de collision sur un fichier, system de locket
+     * @return  vrai si on peut prendre le locket sur le fichier
+     */
+    public boolean isWritable(){
+        return isUse.isEmpty();
     }
 
+    /**
+     *  @return Si l'user a les droit d'acces à un fichier il les prend et renvoit vrai
+     *  sinon renvoit false
+     *
+     */
+    public boolean takeLocket(User user){
+        if(isUse.isEmpty() && father.haveRights(user, Right.WRITE.getValue())) {
+            isUse.add(new IsUse(user, this));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param user le user qui veut quitter le locket, on verifie s'il s"agit de celui qui le possède actuellement
+     * @return si le user en question est bien le bon on il peut se retirer du locket
+     * sinon rien
+     */
+    public boolean leaveLocket(User user){
+        if(!isUse.isEmpty() && isUse.get(0).getIdUser() == user.getId())
+            return true;
+        return false;
+    }
+
+
+    /**
+     * determine si l'user est inactif
+     * @return vrai si le temps d'inactivité est supérieur à 500 secondes
+     */
+    public boolean leaveLocketOnTime(){
+        Long currentTime = new Date().getTime();
+        if(CONSTANTS.getInstance().getTimeLocket() > (currentTime - isUse.get(0).getLastActivity().getTime()) )
+            return true;
+        return false;
+    }
+
+
+    /**
+     * permet d'ecrire sur un fichier sur le disque
+     * si l'user a ecrit dans le fichier alors le last activity de isUse est mis à l'heure
+     * actuelle
+     * @param content le contenu du ficher
+     */
     public void writeOnFile(String content) {
-        CONSTANTS.getInstance().writeOnFileOnDisk(content, project.getPath() + "/" + path);
+        CONSTANTS.getInstance().writeOnFileOnDisk(content, getPath());
+        if(!isUse.isEmpty())
+            isUse.get(0).setLastActivity(new Date());
     }
 
     public void deleteFile() {
-        CONSTANTS.getInstance().deleteFileOrDirectoryOndisk(project.getPath() + "/" + path);
+        CONSTANTS.getInstance().deleteFileOrDirectoryOndisk(getPath());
     }
-//
-//    private DataFormat timelocked = null;
-//    private User locker = null;
-//
-//    public User getLocker() {
-//        return locker;
-//    }
-//
-//    public void setLocker(User locker) {
-//        this.locker = locker;
-//    }
-//
+
 
 
     //getter and setters
@@ -66,36 +111,32 @@ public class FileInProject {
         this.id = id;
     }
 
-    public String getNom() {
-        return nom;
+    public Container getFather() {
+        return father;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setFather(DirectoryInProject father) {
+        this.father = father;
     }
 
-    public String getPath() {
-        return path;
+    public List<IsUse> getIsUse() {
+        return isUse;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setIsUse(List<IsUse> isUse) {
+        this.isUse = isUse;
     }
 
-    public Project getProject() {
-        return project;
+    public int getIdFather() {
+        return idFather;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setIdFather(int idFather) {
+        this.idFather = idFather;
     }
 
-//    public DataFormat getTimelocked() {
-//        return timelocked;
-//    }
-//
-//    public void setTimelocked(DataFormat timelocked) {
-//        this.timelocked = timelocked;
-//    }
+    public void setFather(Container father) {
+        this.father = father;
+    }
 }
 

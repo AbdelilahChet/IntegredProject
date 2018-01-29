@@ -2,6 +2,7 @@ package bean;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,8 +25,12 @@ public class User implements Serializable{
     private String password;
 
     // http://stackoverflow.com/questions/13027214/jpa-manytoone-with-cascadetype-all
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserProjectRelation> projects;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<IsUse> isUses = new ArrayList<IsUse>();
 
     public User() {
     }
@@ -96,15 +101,24 @@ public class User implements Serializable{
         return surname;
     }
 
-    public void setSurname(String Surname) {
-        this.surname = Surname;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
+    }
+
+    public List<IsUse> getIsUses() {
+        return isUses;
+    }
+
+    public void setIsUses(List<IsUse> isUses) {
+        this.isUses = isUses;
     }
 }

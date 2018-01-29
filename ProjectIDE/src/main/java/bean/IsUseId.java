@@ -14,10 +14,12 @@ public class IsUseId implements Serializable {
         this.idUser = idUser;
     }
 
+    @Override
     public int hashCode() {
-        return (int) (idUser * 10000 + idFile);
+        return idUser * 10000 + idFile;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object instanceof IsUseId) {
             IsUse otherId = (IsUse) object;
